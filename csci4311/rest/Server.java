@@ -22,8 +22,8 @@ public class Server{
 		InetSocketAddress addr = new InetSocketAddress(Integer.parseInt(args[0]));
 		HttpServer server = HttpServer.create(addr, 0);
 		server.createContext( "/", new RootHandler(usersTable, messagesTable));	
-		server.createContext( "/users", new UsersHandler(usersTable, messagesTable));
-		server.createContext( "/user/", new UserHandler(usersTable, messagesTable));
+		server.createContext( "/users", new UsersHandler(usersTable));
+		server.createContext( "/user/", new UserHandler(usersTable));
 		server.createContext( "/topics", new TopicsHandler(usersTable, messagesTable));
 		server.createContext( "/topic/", new TopicHandler(usersTable, messagesTable));
 		server.createContext( "/message/", new MessageHandler(usersTable, messagesTable));

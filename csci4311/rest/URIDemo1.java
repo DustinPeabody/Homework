@@ -11,7 +11,7 @@ class URIDemo1
 
    URI uri = new URI (args [0]);
 
-   URI uri2 = new URI ("http://localhost:8080/user/");
+   URI uri2 = new URI ("http://localhost:80/user/");
 
    URI uri1 = uri2.relativize(uri);
 
@@ -30,6 +30,8 @@ class URIDemo1
              uri.getPath ());
 
    System.out.println ("Path2 =" + uri1.getPath());
+
+   System.out.println("getRequestURI =" + uri.getRequestURI().toString());
    System.out.println ("Port = " +
              uri.getPort ());
 

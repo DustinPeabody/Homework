@@ -16,11 +16,9 @@ import com.sun.net.httpserver.*;
 
 public class UsersHandler implements HttpHandler{
 	ConcurrentHashMap<String, String> usersTable;
-	ConcurrentHashMap<String, String[]> messagesTable;
 
-	public UsersHandler(ConcurrentHashMap<String, String> user, ConcurrentHashMap<String, String[]> topic){
+	public UsersHandler(ConcurrentHashMap<String, String> user){
 		this.usersTable = user;
-		this.messagesTable = topic;
 	}
 
 	public void handle( HttpExchange exchange) throws IOException{
