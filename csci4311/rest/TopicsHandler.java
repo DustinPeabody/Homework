@@ -44,8 +44,6 @@ public class TopicsHandler implements HttpHandler{
 			}
 			response.print(temp);
 			response.print("] }");
-
-			
 		}
 		else{
 			responseHeaders.set( "Content-Type", "json");
