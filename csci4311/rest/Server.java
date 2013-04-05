@@ -11,13 +11,14 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.LinkedList;
 
 import com.sun.net.httpserver.*;
 
 public class Server{
 	public static void main(String[] args) throws IOException {
 		ConcurrentHashMap<String, String> usersTable = new ConcurrentHashMap<String, String>();
-		ConcurrentHashMap<String, String[]> messagesTable = new ConcurrentHashMap<String, String[]>();
+		ConcurrentHashMap<String, LinkedList<Message>> messagesTable = new ConcurrentHashMap<String, LinkedList<Message>>();
 
 		InetSocketAddress addr = new InetSocketAddress(Integer.parseInt(args[0]));
 		HttpServer server = HttpServer.create(addr, 0);

@@ -16,9 +16,9 @@ import com.sun.net.httpserver.*;
 
 public class RootHandler implements HttpHandler{
 	ConcurrentHashMap<String, String> usersTable;
-	ConcurrentHashMap<String, String[]> messagesTable;
+	ConcurrentHashMap<String, LinkedList<Message>> messagesTable;
 
-	public RootHandler(ConcurrentHashMap<String, String> user, ConcurrentHashMap<String, String[]> topic){
+	public RootHandler(ConcurrentHashMap<String, String> user, ConcurrentHashMap<String, LinkedList<Message>> topic){
 		this.usersTable = user;
 		this.messagesTable = topic;
 	}
