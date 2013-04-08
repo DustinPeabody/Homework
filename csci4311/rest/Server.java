@@ -24,7 +24,7 @@ public class Server{
 		HttpServer server = HttpServer.create(addr, 0);
 		server.createContext( "/", new RootHandler(usersTable, messagesTable));	
 		server.createContext( "/users", new UsersHandler(usersTable));
-		server.createContext( "/user/", new UserHandler(usersTable));
+		server.createContext( "/user/", new UserHandler(usersTable, messagesTable));
 		server.createContext( "/topics", new TopicsHandler(usersTable, messagesTable));
 		server.createContext( "/topic/", new TopicHandler(usersTable, messagesTable));
 		server.createContext( "/message/", new MessageHandler(usersTable, messagesTable));

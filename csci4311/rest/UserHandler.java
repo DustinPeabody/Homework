@@ -18,9 +18,11 @@ import com.sun.net.httpserver.*;
 
 public class UserHandler implements HttpHandler{
 	ConcurrentHashMap<String, String> usersTable;
+	ConcurrentHashMap<String, LinkedList<Message>> messagesTable;
 
-	public UserHandler(ConcurrentHashMap<String, String> user){
+	public UserHandler(ConcurrentHashMap<String, String> user, ConcurrentHashMap<String, LinkedList<Message>> messages){
 		this.usersTable = user;
+		this.messagesTable = messages;
 	}
 	public void handle( HttpExchange exchange) throws IOException{
 		String requestMethod = exchange.getRequestMethod();
@@ -50,6 +52,7 @@ public class UserHandler implements HttpHandler{
 				}
 			}
 			catch (URISyntaxException ex){
+				exchange.sendResponseHeaders(404,0);
 				response.print("404");
 			}
 			
@@ -75,6 +78,7 @@ public class UserHandler implements HttpHandler{
 				}
 			}
 			catch (URISyntaxException ex){
+				exchange.sendResponseHeaders(404,0);
 				response.print("404");
 			}
 
@@ -86,6 +90,16 @@ public class UserHandler implements HttpHandler{
 				String userName = less.toString();
 
 				if(usersTable.containsKey(userName)){
+					Enumeration<String> topics = messagesTable.keys();
+					while (topics.hasMoreElements()){
+						LinkedList<Message> tempList = messagesTable.get(topics.nextElement());
+						ListIterator<Message> iter = tempList.listIterator(0);
+						while(iter.hasNext()){
+							if(iter.next().getUser().equals(userName)){
+								iter.remove();
+							}
+						}
+					}
 					usersTable.remove(userName);
 					responseHeaders.set( "Content-Type", "json");
 					exchange.sendResponseHeaders( 200, 0);
@@ -99,6 +113,7 @@ public class UserHandler implements HttpHandler{
 				}
 			}
 			catch (URISyntaxException ex){
+				exchange.sendResponseHeaders(404,0);
 				response.print("404");
 			}
 		}
