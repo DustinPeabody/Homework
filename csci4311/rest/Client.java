@@ -60,7 +60,10 @@ import java.util.Scanner;
 							System.err.println("Ussage: !<command> <id_string>|<topic> \"<alpha_string>\"");
 						}
 						
-
+						//execute command
+					}
+					else{
+						//post line as a message from current user
 					}
 
 			}

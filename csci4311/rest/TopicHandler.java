@@ -49,7 +49,7 @@ public class TopicHandler implements HttpHandler{
 					if(tempList.size()>0){
 						response.print("{ [ ");
 						for(int i=0; i < tempList.size(); i++){
-							response.print("{id:\"" + tempList.get(i).getUser() + ", message:\"" + tempList.get(i).getMessage() +"\"}");
+							response.print("{\"id\":\"" + tempList.get(i).getUser() + ", \"message\":\"" + tempList.get(i).getMessage() +"\"}");
 							if(i < tempList.size()-1){
 								response.print(", ");
 							}
