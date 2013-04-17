@@ -46,7 +46,7 @@ public class UserHandler implements HttpHandler{
 					responseHeaders.set( "Content-Type", "json");
 					exchange.sendResponseHeaders( 200, 0);
 					response.print("{ ");
-					response.print("\"id\":\"" + userName + ", \"name\":\"" + usersTable.get(userName) +"\"");
+					response.print("\"id\":\"" + userName + "\", \"name\":\"" + usersTable.get(userName) +"\"");
 					response.print("}");
 				}
 

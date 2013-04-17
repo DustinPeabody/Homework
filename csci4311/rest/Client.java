@@ -8,104 +8,103 @@ package csci4311.rest;
 
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
+import java.util.regex.*;
 
 	public class Client{
+		String currentUser = "";
+		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+		String baseURL = "";
+		String consumed;
+		String command = "";
+		String part1;
+		String part2;
+
+	 public Client(String url1, String port){
+	 	baseURL = "http://" + url1 + ":" + port +"/";
+
+
+	 }
+
 		public static void main(String[] args) throws IOException{
-			//The user that is currently signed-in
-			String currentUser = "";
-			String baseURL = "http://" + args[0] + ":" + args[1] +"/";
-			
+			new Client(args[0], args[1]).run();
+		}
 
-			// URL url = new URL("http://" + args[0] + ":" + args[1] + "/users");
-			// HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			// conn.setRequestMethod("GET");
-			// conn.setRequestProperty("Accept", "application/json");
-			// BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
- 
-			// String output;
-			// System.out.println("Output from Server .... \n");
-			// while ((output = br.readLine()) != null) {
-			// 	System.out.println(output);
-			// }
- 
-			// conn.disconnect();
-			BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-			String consumed;
-			String command = "";
-			String part1;
-			String part2;
-
-
+		private void run(){
 			while(!command.equals("quit")){
 					System.out.print(currentUser + ">");
-					consumed = input.readLine();
-					//If the input is a command
-					if(consumed.charAt(0) == '!'){
-						//parse out the command and the options
-						String[] parts = consumed.substring(1).split(" ");
-						int partsSize = parts.length;
-						//only the command is entered
-						if(partsSize == 1){
-							command = parts[0];
-							part1="";
-							part2="";
-							executeCommand(command,part1,part2,currentUser,baseURL);
+					try{
+						consumed = input.readLine();
+						//If the input is a command
+						if(consumed.charAt(0) == '!'){
+							//parse out the command and the options
+							String[] parts = consumed.substring(1).split(" ");
+							int partsSize = parts.length;
+							//only the command is entered
+							if(partsSize == 1){
+								command = parts[0];
+								part1="";
+								part2="";
+								executeCommand(command,part1,part2);
 
-						}
-						//the command and a single option
-						else if(partsSize == 2){
-							command = parts[0];
-							part1 = parts[1];
-							part2 = "";
-							executeCommand(command,part1,part2,currentUser,baseURL);
+							}
+							//the command and a single option
+							else if(partsSize == 2){
+								command = parts[0];
+								part1 = parts[1];
+								part2 = "";
+								executeCommand(command,part1,part2);
 
+							}
+							//the command and two options
+							else if(partsSize == 3){
+								command = parts[0];
+								part1 = parts[1];
+								part2 = parts[2];	
+								executeCommand(command,part1,part2);
+							}
+							//anymore than a command and two options is a no go
+							else{
+								System.err.println("Ussage: !<command> <id_string>|<topic> \"<alpha_string>\"");
+							}
+							
 						}
-						//the command and two options
-						else if(partsSize == 3){
-							command = parts[0];
-							part1 = parts[1];
-							part2 = parts[2];	
-							executeCommand(command,part1,part2,currentUser,baseURL);
-						}
-						//anymore than a command and two options is a no go
 						else{
-							System.err.println("Ussage: !<command> <id_string>|<topic> \"<alpha_string>\"");
+							//post line as a message from current user
 						}
-						
 					}
-					else{
-						//post line as a message from current user
+					catch(IOException e){
+						System.err.println("IOException");
 					}
 
 			}
-
-
 		}
 
 		//Determines the method being called by the user and executes it
-		private static void executeCommand(String command, String option1, String option2, String currentUser, String baseURL){
+		private void executeCommand(String command, String option1, String option2){
 
 			if(command.equals("mkuser")){
-				makeUser(option1,option2,baseURL);
+				makeUser(option1,option2);
 			}
 			else if(command.equals("rmuser")){
-				removeUser(option1,baseURL);
+				removeUser(option1);
 			}
 			else if(command.equals("user")){
-				user(baseURL);
+				user(option1);
+			}
+			else if(command.equals("users")){
+				users();
 			}
 			else if(command.equals("login")){
-				login(option1, currentUser,baseURL);
+				login(option1);
 			}
 			else if(command.equals("topics")){
-				topics(baseURL);
+				topics();
 			}
 			else if(command.equals("rmtopic")){
-				removeTopic(option1,baseURL);
+				removeTopic(option1);
 			}
 			else if(command.equals("post")){
-				post(option1, currentUser,baseURL);
+				post(option1);
 			}
 			else if(command.equals("quit")){
 				System.exit(0);
@@ -118,7 +117,7 @@ import java.util.Scanner;
 
 		//Make a user with the given id and name
 		//Throws an io exception if the user didn't have the right number of arguments, its caught though
-		private static void makeUser(String id, String name, String baseURL){
+		private void makeUser(String id, String name){
 			HttpURLConnection conn = null;
 			try{
 				URL url = new URL(baseURL +"user/" + id + "?name=" + name);
@@ -145,7 +144,7 @@ import java.util.Scanner;
 
 		}
 
-		private static void removeUser(String id, String baseURL){
+		private void removeUser(String id){
 			HttpURLConnection conn = null;
 			try{
 				URL url = new URL(baseURL +"user/" + id);
@@ -171,23 +170,107 @@ import java.util.Scanner;
 			}
 		}
 
-		private static void user(String baseURL){
+		private void user(String id){
+			HttpURLConnection conn = null;
+			try{
+				URL url = new URL(baseURL +"user/" + id);
+				conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod("GET");
+				conn.setRequestProperty("Accept", "application/json");
+				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+				String output;
+				while ((output = br.readLine()) != null) {
+					System.out.println(output.split("\"name\":")[1].replaceAll("[^\\p{L}\\p{N}]", ""));
+				}
+	 
+				conn.disconnect();
+			}
+
+			catch(MalformedURLException e){
+				System.err.println("Bad URL. Please make sure the URL is correct.");
+			}
+
+			catch(IOException i){
+				try{
+					System.err.println(conn.getResponseCode() + " " + conn.getResponseMessage());
+				}
+				catch(IOException p){
+					System.err.println("Wrong number of arguments for this method, try again.");
+				}
+			}
 			
 		}
 
-		private static void login(String id, String currentUser, String baseURL){
+		private void users(){
+			HttpURLConnection conn = null;
+			try{
+				URL url = new URL(baseURL +"users");
+				conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod("GET");
+				conn.setRequestProperty("Accept", "application/json");
+				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+				String output;
+				while ((output = br.readLine()) != null) {
+					System.out.println(output);
+				}
+	 
+				conn.disconnect();
+			}
+
+			catch(MalformedURLException e){
+				System.err.println("Bad URL. Please make sure the URL is correct.");
+			}
+
+			catch(IOException i){
+				try{
+					System.err.println(conn.getResponseCode() + " " + conn.getResponseMessage());
+				}
+				catch(IOException p){
+					System.err.println("Wrong number of arguments for this method, try again.");
+				}
+			}
 			
 		}
 
-		private static void topics(String baseURL){
+		private void login(String id){
+			HttpURLConnection conn = null;
+			try{
+				URL url = new URL(baseURL +"user/" + id);
+				conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod("GET");
+				conn.setRequestProperty("Accept", "application/json");
+				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+	 
+				conn.disconnect();
+				currentUser = id;
+			}
+
+			catch(MalformedURLException e){
+				System.err.println("Bad URL. Please make sure the URL is correct.");
+			}
+
+			catch(IOException i){
+				try{
+					System.err.println(conn.getResponseCode() + " " + conn.getResponseMessage());
+				}
+				catch(IOException p){
+					System.err.println("Wrong number of arguments for this method, try again.");
+				}
+			}
 			
 		}
 
-		private static void removeTopic(String topic, String baseURL){
+		private void topics(){
 			
 		}
 
-		private static void post(String filePath, String currentUser, String baseURL){
+		private void removeTopic(String topic){
+			
+		}
+
+		private void post(String filePath){
 			
 		}
 	}
