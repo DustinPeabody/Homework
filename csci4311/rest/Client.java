@@ -146,8 +146,29 @@ import java.util.Scanner;
 		}
 
 		private static void removeUser(String id, String baseURL){
-			
-			
+			HttpURLConnection conn = null;
+			try{
+				URL url = new URL(baseURL +"user/" + id);
+				conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod("DELETE");
+				conn.setRequestProperty("Accept", "application/json");
+				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+	 
+				conn.disconnect();
+			}
+
+			catch(MalformedURLException e){
+				System.err.println("Bad URL. Please make sure the URL is correct.");
+			}
+
+			catch(IOException i){
+				try{
+					System.err.println(conn.getResponseCode() + " " + conn.getResponseMessage());
+				}
+				catch(IOException p){
+					System.err.println("Wrong number of arguments for this method, try again.");
+				}
+			}
 		}
 
 		private static void user(String baseURL){
