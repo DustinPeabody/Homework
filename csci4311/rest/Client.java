@@ -19,16 +19,18 @@ import java.util.regex.*;
 		String part1;
 		String part2;
 
+	//Make a new client and build the base string
 	 public Client(String url1, String port){
 	 	baseURL = "http://" + url1 + ":" + port +"/";
 
 
 	 }
-
+	 	//make a new client and pass the args to build the url
 		public static void main(String[] args) throws IOException{
 			new Client(args[0], args[1]).run();
 		}
 
+		//main loop contains the tui logic
 		private void run(){
 			while(!command.equals("quit")){
 					System.out.print(currentUser + ">");
@@ -39,6 +41,7 @@ import java.util.regex.*;
 							//parse out the command and the options
 							String[] parts = consumed.substring(1).split(" ");
 							int partsSize = parts.length;
+
 							//only the command is entered
 							if(partsSize == 1){
 								command = parts[0];
@@ -69,6 +72,7 @@ import java.util.regex.*;
 							
 						}
 						else{
+							post(consumed);
 							//post line as a message from current user
 						}
 					}
@@ -104,7 +108,7 @@ import java.util.regex.*;
 				removeTopic(option1);
 			}
 			else if(command.equals("post")){
-				post(option1);
+				postFile(option1);
 			}
 			else if(command.equals("quit")){
 				System.exit(0);
@@ -124,7 +128,8 @@ import java.util.regex.*;
 				conn = (HttpURLConnection) url.openConnection();
 				conn.setRequestMethod("PUT");
 				conn.setRequestProperty("Accept", "application/json");
-				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+				//this line is neccessary to actually send the request;
+				conn.getInputStream();
 	 
 				conn.disconnect();
 			}
@@ -144,6 +149,7 @@ import java.util.regex.*;
 
 		}
 
+		//removes the user with the given id
 		private void removeUser(String id){
 			HttpURLConnection conn = null;
 			try{
@@ -151,7 +157,7 @@ import java.util.regex.*;
 				conn = (HttpURLConnection) url.openConnection();
 				conn.setRequestMethod("DELETE");
 				conn.setRequestProperty("Accept", "application/json");
-				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+				conn.getInputStream();
 	 
 				conn.disconnect();
 			}
@@ -263,14 +269,110 @@ import java.util.regex.*;
 		}
 
 		private void topics(){
+			HttpURLConnection conn = null;
+			try{
+				URL url = new URL(baseURL +"topics");
+				conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod("GET");
+				conn.setRequestProperty("Accept", "application/json");
+				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+				String output;
+				while ((output = br.readLine()) != null) {
+					System.out.println(output);
+				}
+	 
+				conn.disconnect();
+			}
+
+			catch(MalformedURLException e){
+				System.err.println("Bad URL. Please make sure the URL is correct.");
+			}
+
+			catch(IOException i){
+				try{
+					System.err.println(conn.getResponseCode() + " " + conn.getResponseMessage());
+				}
+				catch(IOException p){
+					System.err.println("Wrong number of arguments for this method, try again.");
+				}
+			}
 			
 		}
 
 		private void removeTopic(String topic){
+			HttpURLConnection conn = null;
+			try{
+				URL url = new URL(baseURL +"topic/" + topic);
+				conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod("DELETE");
+				conn.setRequestProperty("Accept", "application/json");
+				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+	 
+				conn.disconnect();
+			}
+
+			catch(MalformedURLException e){
+				System.err.println("Bad URL. Please make sure the URL is correct.");
+			}
+
+			catch(IOException i){
+				try{
+					System.err.println(conn.getResponseCode() + " " + conn.getResponseMessage());
+				}
+				catch(IOException p){
+					System.err.println("Wrong number of arguments for this method, try again.");
+				}
+			}
 			
 		}
 
-		private void post(String filePath){
-			
+		private void postFile(String filePath){
+			try{
+				BufferedReader fileReader = new BufferedReader(new FileReader(filePath));
+				String output;
+				while ((output = fileReader.readLine()) != null) {
+					post(output);
+				}
+			}
+			catch(IOException e){
+				System.err.println("File not found.");
+			}
+		}
+
+		private void post(String message){
+			HttpURLConnection conn = null;
+			try{
+				URL url = new URL(baseURL +"message/" + currentUser);
+				conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod("POST");
+				conn.setRequestProperty("Accept", "application/json");
+				
+      			conn.setDoOutput(true);
+
+      			//Send request
+      			DataOutputStream wr = new DataOutputStream (conn.getOutputStream ());
+			    wr.writeBytes ("message=" + message);
+			    wr.flush ();
+			    wr.close ();
+
+			    BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+	 
+				conn.disconnect();
+			}
+
+			catch(MalformedURLException e){
+				System.err.println("Bad URL. Please make sure the URL is correct.");
+			}
+
+			catch(IOException i){
+				try{
+					System.err.println(conn.getResponseCode() + " " + conn.getResponseMessage());
+				}
+				catch(IOException p){
+					System.err.println("Wrong number of arguments for this method, try again.");
+				}
+			}
+
 		}
 	}
